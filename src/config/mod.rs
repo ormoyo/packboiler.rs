@@ -19,4 +19,6 @@ pub struct PackConfig {
     pub version: Option<String>,
     #[command(flatten)]
     pub modloader: ModloaderConfig,
+    #[arg(short, long)]
+    pub yes: bool,
 }

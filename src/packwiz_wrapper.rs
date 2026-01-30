@@ -31,6 +31,16 @@ macro_rules! append_arg {
             $command.arg(concat!("--", $alias)).arg($field);
         }
     };
+    ($command:ident, if $field:ident) => {
+        if $field {
+            $command.arg(concat!("--", stringify!($field)));
+        }
+    };
+    ($command:ident, if $field:ident, $alias:literal) => {
+        if #field {
+            $command.arg(concat!("--", $alias));
+        }
+    };
 }
 
 pub struct PackwizWrapper(Box<Path>);
@@ -47,6 +57,7 @@ impl PackwizWrapper {
         let mc_version = config_or_struct!(template.info, mc_version);
         let author = config_or_struct!(template.info, author?);
         let version = config_or_struct!(template.info, version?);
+        let yes = CONFIG.yes;
 
         let mut command = Command::new("packwiz");
 
@@ -57,6 +68,7 @@ impl PackwizWrapper {
         append_arg!(command, mc_version, "mc-version");
         append_arg!(command, author?);
         append_arg!(command, version?);
+        append_arg!(command, if yes);
 
         let _ = command
             .spawn()

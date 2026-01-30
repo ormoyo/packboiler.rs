@@ -38,6 +38,8 @@ fn main() {
         }
     };
 
+    env_logger::init();
+
     let file_completion = PathCompletion;
     let template_path: Cow<'static, str> = CONFIG
         .template

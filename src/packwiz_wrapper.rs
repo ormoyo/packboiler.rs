@@ -82,8 +82,12 @@ impl PackwizWrapper {
     }
 
     pub fn add_mod(&self, template: &Template, entry: &ModEntry) {
-        let provider = if let ModEntry::Advance { provider, .. } = entry {
-            provider.unwrap_or(template.info.provider)
+        let provider = if let ModEntry::Advance {
+            provider: Some(prov),
+            ..
+        } = entry
+        {
+            *pro
         } else {
             template.info.provider
         };

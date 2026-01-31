@@ -12,6 +12,7 @@ mod path_completion;
 mod template;
 
 use config::PackConfig;
+use log::info;
 use packwiz_wrapper::PackwizWrapper;
 use path_completion::PathCompletion;
 use template::*;
@@ -37,6 +38,8 @@ fn main() {
             Err(_) => Err("File cannot be accessed or doesn't exist"),
         }
     };
+
+    env_logger::init();
 
     let file_completion = PathCompletion;
     let template_path: Cow<'static, str> = CONFIG
@@ -96,6 +99,14 @@ fn main() {
             .for_each(|str| vec.push(str));
         vec
     };
+
+    let mods_len: usize = enabled_modules
+        .iter()
+        .filter_map(|m| template.modules.get(*m))
+        .map(|module| module.mods.len())
+        .sum();
+
+    info!("Adding {} mods", mods_len);
 
     for module in enabled_modules
         .iter()

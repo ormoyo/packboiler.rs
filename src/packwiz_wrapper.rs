@@ -1,5 +1,7 @@
 use std::{path::Path, process::Command};
 
+use log::{debug, info, trace};
+
 use crate::{
     CONFIG,
     template::{ModEntry, ModEntryType, ModProvider, Template},
@@ -70,6 +72,9 @@ impl PackwizWrapper {
         append_arg!(command, version?);
         append_arg!(command, if yes);
 
+        info!("Initializing packwiz project");
+        debug!("Executing command:\n {:?}", command);
+
         let _ = command
             .spawn()
             .expect("Couldn't run packwiz command")
@@ -83,6 +88,23 @@ impl PackwizWrapper {
             template.info.provider
         };
 
+        fn spawn(id: &str, provider: ModProvider, pwd: &Path) {
+            let mut command = Command::new("packwiz");
+            command
+                .current_dir(std::fs::canonicalize(pwd).unwrap())
+                .arg(provider.as_ref())
+                .arg("add")
+                .arg(id);
+
+            debug!("Adding mod {}", id);
+            trace!("Executing command:\n {:?}", command);
+
+            let _ = command
+                .spawn()
+                .expect("Couldn't run packwiz command")
+                .wait();
+        }
+
         match entry {
             ModEntry::Simple(id)
             | ModEntry::Advance {
@@ -90,27 +112,16 @@ impl PackwizWrapper {
                 id,
                 ..
             } => {
-                Self::spawn_add_process(id, provider, self.0.as_ref());
+                spawn(id, provider, self.0.as_ref());
             }
             ModEntry::Advance {
                 ty: ModEntryType::List { mods } | ModEntryType::Pick { mods },
                 ..
             } => {
                 for id in mods {
-                    Self::spawn_add_process(id, provider, self.0.as_ref());
+                    spawn(id, provider, self.0.as_ref());
                 }
             }
         }
-    }
-
-    fn spawn_add_process(id: &str, provider: ModProvider, pwd: &Path) {
-        let _ = Command::new("packwiz")
-            .current_dir(std::fs::canonicalize(pwd).unwrap())
-            .arg(provider.as_ref())
-            .arg("add")
-            .arg(id)
-            .spawn()
-            .expect("Couldn't run packwiz command")
-            .wait();
     }
 }

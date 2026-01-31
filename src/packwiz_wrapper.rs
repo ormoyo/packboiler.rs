@@ -1,5 +1,7 @@
 use std::{path::Path, process::Command};
 
+use log::{debug, info, trace};
+
 use crate::{
     CONFIG,
     template::{ModEntry, ModEntryType, ModProvider, Template},
@@ -69,6 +71,9 @@ impl PackwizWrapper {
         append_arg!(command, author?);
         append_arg!(command, version?);
         append_arg!(command, if yes);
+
+        info!("Initializing packwiz project");
+        debug!("Executing command:\n {:?}", command);
 
         let _ = command
             .spawn()
